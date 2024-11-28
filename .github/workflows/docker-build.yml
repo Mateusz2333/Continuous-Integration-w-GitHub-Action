@@ -1,0 +1,36 @@
+name: Docker Build
+
+on:
+  push:
+    branches:
+      - main  # Workflow uruchomi się po commitach na gałąź main
+  pull_request:
+    branches:
+      - main  # Workflow uruchomi się także przy pull requestach do gałęzi main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Workflow uruchomi się na najnowszym Ubuntu
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3  # Sklonowanie repozytorium
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2  # Przygotowanie środowiska do budowania obrazów Dockerowych
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/docker
+          key: ${{ runner.os }}-docker-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-docker-
+
+      - name: Build Docker image
+        run: |
+          docker build -t my-app .  # Zbudowanie obrazu Dockerowego
+
+      - name: Test Docker image
+        run: |
+          docker run --rm my-app --version  # Testowanie obrazu, np. sprawdzenie wersji aplikacji

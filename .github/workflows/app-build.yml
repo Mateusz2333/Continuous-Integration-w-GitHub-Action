@@ -1,0 +1,53 @@
+name: Build Application
+
+on:
+  push:
+    branches:
+      - main  # Workflow uruchomi się po commitach na gałąź main
+  pull_request:
+    branches:
+      - main  # Workflow uruchomi się także przy pull requestach do gałęzi main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Workflow uruchomi się na Ubuntu
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3  # Sklonowanie repozytorium
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'  # Wersja Node.js, dostosuj do swojego projektu
+
+      - name: Install dependencies
+        run: |
+          npm install  # Instalacja zależności
+
+      - name: Build the application
+        run: |
+          npm run build  # Kompilowanie aplikacji
+
+      - name: Run tests
+        run: |
+          npm test  # Uruchamianie testów aplikacji
+
+# Opcjonalny krok do publikacji na GitHub Pages
+  pages:
+    runs-on: ubuntu-latest
+    if: success()  # Publikowanie tylko, jeśli build zakończy się sukcesem
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build static website
+        run: |
+          npm run build  # Kompilowanie strony, zmień jeśli masz inną metodę budowania
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages  # Publikowanie na gałęzi gh-pages
+          folder: build  # Folder z wygenerowaną stroną (zmień na odpowiedni)
